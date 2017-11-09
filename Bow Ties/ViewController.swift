@@ -22,16 +22,16 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+final class ViewController: UIViewController {
 
   // MARK: - IBOutlets
-  @IBOutlet weak var segmentedControl: UISegmentedControl!
-  @IBOutlet weak var imageView: UIImageView!
-  @IBOutlet weak var nameLabel: UILabel!
-  @IBOutlet weak var ratingLabel: UILabel!
-  @IBOutlet weak var timesWornLabel: UILabel!
-  @IBOutlet weak var lastWornLabel: UILabel!
-  @IBOutlet weak var favoriteLabel: UILabel!
+  @IBOutlet private weak var segmentedControl: UISegmentedControl!
+  @IBOutlet private weak var imageView: UIImageView!
+  @IBOutlet private weak var nameLabel: UILabel!
+  @IBOutlet private weak var ratingLabel: UILabel!
+  @IBOutlet private weak var timesWornLabel: UILabel!
+  @IBOutlet private weak var lastWornLabel: UILabel!
+  @IBOutlet private weak var favoriteLabel: UILabel!
 
   // MARK: - View Life Cycle
   override func viewDidLoad() {
@@ -39,15 +39,15 @@ class ViewController: UIViewController {
   }
 
   // MARK: - IBActions
-  @IBAction func segmentedControl(_ sender: AnyObject) {
+  @IBAction private func segmentedControl(_ sender: AnyObject) {
 
   }
 
-  @IBAction func wear(_ sender: AnyObject) {
+  @IBAction private func wear(_ sender: AnyObject) {
 
   }
   
-  @IBAction func rate(_ sender: AnyObject) {
+  @IBAction private func rate(_ sender: AnyObject) {
 
   }
 }
