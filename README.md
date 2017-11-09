@@ -1,0 +1,1 @@
+# CoreData-Chapter2-NSManagedObject-Subclass
