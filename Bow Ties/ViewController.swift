@@ -137,7 +137,12 @@ final class ViewController: UIViewController {
       try managedContext.save()
       updateView(bowtie: currentBowtie)
     } catch let error as NSError {
-      print("Could not fetch \(error), \(error.userInfo)")
+      if error.domain == NSCocoaErrorDomain &&
+        (error.code == NSValidationNumberTooLargeError || error.code == NSValidationNumberTooSmallError) {
+        rate(currentBowtie)
+      } else {
+        print("Could not fetch \(error), \(error.userInfo)")
+      }
     }
   }
 
