@@ -44,15 +44,13 @@ final class ViewController: UIViewController {
 
     insertSampleData()
 
-    request()
+    request(title: segmentedControl.titleForSegment(at: 0)!)
   }
 
   // MARK: - Private Func
-  private func request() {
-
+  private func request(title: String?) {
     let request = NSFetchRequest<Bowtie>(entityName: "Bowtie")
-    let firstTitle = segmentedControl.titleForSegment(at: 0)!
-    request.predicate = NSPredicate(format: "searchKey == %@", firstTitle)
+    request.predicate = NSPredicate(format: "searchKey == %@", title!)
 
     do {
       let results = try managedContext.fetch(request)
@@ -86,6 +84,22 @@ final class ViewController: UIViewController {
     favoriteLabel.isHidden = !bowtie.isFavorite
     view.tintColor = tintColor
 
+  }
+
+  private func update(rating: String?) {
+    guard let ratingString = rating, let rating = Double(ratingString) else { return }
+    do {
+      currentBowtie.rating = rating
+      try managedContext.save()
+      updateView(bowtie: currentBowtie)
+    } catch let error as NSError {
+      if error.domain == NSCocoaErrorDomain &&
+        (error.code == NSValidationNumberTooLargeError || error.code == NSValidationNumberTooSmallError) {
+        rate(currentBowtie)
+      } else {
+        print("Could not fetch \(error), \(error.userInfo)")
+      }
+    }
   }
 
   private func insertSampleData() {
@@ -130,25 +144,12 @@ final class ViewController: UIViewController {
     }
   }
 
-  private func update(rating: String?) {
-    guard let ratingString = rating, let rating = Double(ratingString) else { return }
-    do {
-      currentBowtie.rating = rating
-      try managedContext.save()
-      updateView(bowtie: currentBowtie)
-    } catch let error as NSError {
-      if error.domain == NSCocoaErrorDomain &&
-        (error.code == NSValidationNumberTooLargeError || error.code == NSValidationNumberTooSmallError) {
-        rate(currentBowtie)
-      } else {
-        print("Could not fetch \(error), \(error.userInfo)")
-      }
-    }
-  }
-
   // MARK: - IBActions
   @IBAction private func segmentedControl(_ sender: AnyObject) {
+    guard let control = sender as? UISegmentedControl else { return }
+    let selectedValue = control.titleForSegment(at: control.selectedSegmentIndex)
 
+    request(title: selectedValue)
   }
 
   @IBAction private func wear(_ sender: AnyObject) {
