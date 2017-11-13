@@ -36,6 +36,7 @@ final class ViewController: UIViewController {
 
   // MARK: - Properties
   var managedContext: NSManagedObjectContext!
+  private var currentBowtie: Bowtie!
 
   // MARK: - View Life Cycle
   override func viewDidLoad() {
@@ -55,7 +56,8 @@ final class ViewController: UIViewController {
 
     do {
       let results = try managedContext.fetch(request)
-      populate(bowtie: results.first!)
+      currentBowtie = results.first
+      updateView(bowtie: results.first!)
 
     } catch let error as NSError {
       print("Could not fetch \(error), \(error.userInfo)")
@@ -63,7 +65,7 @@ final class ViewController: UIViewController {
 
   }
 
-  private func populate(bowtie: Bowtie) {
+  private func updateView(bowtie: Bowtie) {
     guard let imageData = bowtie.photoData as? Data,let lastWorn = bowtie.lastWorn as? Date,
       let tintColor = bowtie.tinColor as? UIColor else {
         return
@@ -125,7 +127,17 @@ final class ViewController: UIViewController {
       bowtie.isFavorite = btDict["isFavorite"] as! Bool
 
       try! managedContext.save()
-      
+    }
+  }
+
+  private func update(rating: String?) {
+    guard let ratingString = rating, let rating = Double(ratingString) else { return }
+    do {
+      currentBowtie.rating = rating
+      try managedContext.save()
+      updateView(bowtie: currentBowtie)
+    } catch let error as NSError {
+      print("Could not fetch \(error), \(error.userInfo)")
     }
   }
 
@@ -135,11 +147,32 @@ final class ViewController: UIViewController {
   }
 
   @IBAction private func wear(_ sender: AnyObject) {
+    currentBowtie.timesWorn = currentBowtie.timesWorn + 1
+    currentBowtie.lastWorn = NSDate()
 
+    do {
+      try managedContext.save()
+      updateView(bowtie: currentBowtie)
+    } catch let error as NSError {
+      print("Could not fetch \(error), \(error.userInfo)")
+    }
   }
   
   @IBAction private func rate(_ sender: AnyObject) {
+    let alert = UIAlertController(title: "New Rating", message: "Rate this bow tie", preferredStyle: .alert)
+    alert.addTextField { (textField) in
+      textField.keyboardType = .decimalPad
+    }
 
+    let cancelAction = UIAlertAction(title: "Cancel", style: .default)
+    let saveAction = UIAlertAction(title: "Save", style: .default, handler: { [unowned self] action in
+      guard let textField = alert.textFields?.first else { return }
+
+      self.update(rating: textField.text)
+    })
+    alert.addAction(cancelAction)
+    alert.addAction(saveAction)
+    present(alert, animated: true)
   }
 }
 
